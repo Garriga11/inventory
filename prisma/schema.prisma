@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Part {
+  id          String        @id @default(uuid())
+  name        String
+  stock       Int
+  price       Float
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  InvoiceItem InvoiceItem[]
+}
+
+model Invoice {
+  id        String        @id @default(cuid())
+  customer  String
+  total     Float
+  paid      Boolean       @default(false)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  items     InvoiceItem[]
+  payment   Payment?
+}
+
+model InvoiceItem {
+  id        String  @id @default(cuid())
+  invoiceId String
+  partId    String
+  quantity  Int
+  price     Float // ✅ Added to support historical pricing
+  part      Part    @relation(fields: [partId], references: [id])
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  invoiceId String   @unique
+  amount    Float
+  paidAt    DateTime @default(now())
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+}
