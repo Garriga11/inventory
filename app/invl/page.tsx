@@ -1,5 +1,5 @@
-import prisma from "@/lib/prisma";
-import { createInvoiceAction, markInvoicePaidAction } from "./action";
+
+import { addPartAction, createInvoiceAction, markInvoicePaidAction } from "./action";
 
 export default async function PartsPage() {
   const parts = await prisma.part.findMany();
@@ -9,26 +9,37 @@ export default async function PartsPage() {
   });
 
   return (
-    <main className="p-6">
+    <main className="p-6 rounded shadow-4">
       <h1 className="text-xl font-bold">Parts</h1>
-      <table className="border mt-2">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Stock</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          {parts.map((p) => (
-            <tr key={p.id}>
-              <td>{p.name}</td>
-              <td>{p.stock}</td>
-              <td>${p.price.toFixed(2)}</td>
+
+      {/* Add Inventory Form */}
+      <form action={addPartAction} className="flex gap-2 mt-4 mb-6 items-end">
+        <input name="name" placeholder="Name" required className="border px-2 py-1 rounded" />
+        <input name="price" type="number" step="0.01" placeholder="Price" required className="border px-2 py-1 rounded w-24" />
+        <input name="stock" type="number" min="0" placeholder="Stock" required className="border px-2 py-1 rounded w-20" />
+        <button type="submit" className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Add Part</button>
+      </form>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-[400px] w-full border border-gray-300 rounded-lg shadow-sm mt-2 bg-white dark:bg-gray-900">
+          <thead>
+            <tr className="bg-gray-100 dark:bg-gray-800">
+              <th className="px-4 py-2 border-b font-semibold text-left">Name</th>
+              <th className="px-4 py-2 border-b font-semibold text-left">Stock</th>
+              <th className="px-4 py-2 border-b font-semibold text-left">Price</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {parts.map((p, idx) => (
+              <tr key={p.id} className={idx % 2 === 0 ? "bg-white dark:bg-gray-900" : "bg-gray-50 dark:bg-gray-800"}>
+                <td className="px-4 py-2 border-b">{p.name}</td>
+                <td className="px-4 py-2 border-b">{p.stock}</td>
+                <td className="px-4 py-2 border-b">${p.price.toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <h2 className="text-lg mt-6">Request Part</h2>
       <form action={createInvoiceAction} className="flex gap-2 mt-2">

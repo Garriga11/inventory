@@ -26,6 +26,8 @@ model Invoice {
   updatedAt DateTime      @updatedAt
   items     InvoiceItem[]
   payment   Payment?
+  revenue   Revenue[]
+  
 }
 
 model InvoiceItem {
@@ -36,6 +38,7 @@ model InvoiceItem {
   price     Float // ✅ Added to support historical pricing
   part      Part    @relation(fields: [partId], references: [id])
   invoice   Invoice @relation(fields: [invoiceId], references: [id])
+
 }
 
 model Payment {
@@ -44,4 +47,18 @@ model Payment {
   amount    Float
   paidAt    DateTime @default(now())
   invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+  revenue   Revenue[]
+}
+model Revenue {
+  id          String   @id @default(cuid())
+  amount      Float
+  source      String
+  description String?
+  invoiceId   String?
+  paymentId   String?   
+  paymentDate DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  payment     Payment?  @relation(fields: [paymentId], references: [id])
+  invoice     Invoice?  @relation(fields: [invoiceId], references: [id])
 }

@@ -1,7 +1,19 @@
 "use server";
-
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+
+
+
+
+export async function addPartAction(formData: FormData) {
+  const name = formData.get("name") as string;
+  const price = Number(formData.get("price"));
+  const stock = Number(formData.get("stock"));
+  await prisma.part.create({ data: { name, price, stock } });
+  revalidatePath("/invl");
+}
+
+
 
 // Create invoice and deduct inventory
 export async function createInvoiceAction(formData: FormData) {

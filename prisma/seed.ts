@@ -4,17 +4,17 @@ const prisma = new PrismaClient()
 
 async function main() {
   // Create parts (inventory)
-  const product1 = await prisma.part.create({
+  const Screen = await prisma.part.create({
     data: {
-      name: 'Product 1',
+      name: 'Iphone 13 Pro Max Screen',
       price: 9.99,
       stock: 100,
     },
   })
 
-  const product2 = await prisma.part.create({
+  const Battery = await prisma.part.create({
     data: {
-      name: 'Product 2',
+      name: 'Iphone 13 Pro Max Battery',
       price: 19.99,
       stock: 50,
     },
@@ -24,25 +24,25 @@ async function main() {
   const invoice = await prisma.invoice.create({
     data: {
       customer: 'Customer 1',
-      total: (product1.price * 2) + (product2.price * 1),
+      total: (Battery.price * 2) + (Battery.price * 1),
       paid: true,
       items: {
         create: [
           {
-            partId: product1.id,
+            partId: Battery.id,
             quantity: 2,
-            price: product1.price, // ✅ Matches schema
+            price: Battery.price, 
           },
           {
-            partId: product2.id,
+            partId: Battery.id,
             quantity: 1,
-            price: product2.price,
+            price: Battery.price,
           },
         ],
       },
       payment: {
         create: {
-          amount: (product1.price * 2) + (product2.price * 1),
+          amount: (Battery.price * 2) + (Battery.price * 1),
           paidAt: new Date(), // ✅ Optional override
         },
       },
