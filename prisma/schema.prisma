@@ -62,3 +62,4 @@ model Revenue {
   payment     Payment?  @relation(fields: [paymentId], references: [id])
   invoice     Invoice?  @relation(fields: [invoiceId], references: [id])
 }
+
