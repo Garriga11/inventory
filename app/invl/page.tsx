@@ -1,5 +1,5 @@
 import { addPartAction, createInvoiceAction, payInvoiceAction, getInvoices, createCustomInvoiceAction } from "./action";
-import { getMonthlyRevenue, getDailyRevenue } from "./revActions";
+import { getMonthlyRevenue, getDailyRevenue } from "@/app/invl/revActions";
 
 export default async function PartsPage() {
   const parts = await prisma.part.findMany();
