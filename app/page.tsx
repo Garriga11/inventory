@@ -23,7 +23,7 @@ export default function Home() {
         </p>
         <p className="text-gray-700 dark:text-gray-300 text-sm text-center">
           For more information on how to integrate this system into your business, please visit our website: <span className="font-semibold">TBA</span><br />
-          <Link href="/invl" className="text-blue-500 hover:underline">Try it out</Link>
+          <Link href="/dashboard/admin" className="text-blue-500 hover:underline">Try it out</Link>
         </p>
       </div>
 
