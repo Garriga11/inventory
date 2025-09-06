@@ -19,20 +19,28 @@ export async function addPartAction(formData: FormData) {
 export async function createInvoiceAction(formData: FormData) {
   const partId = formData.get("partId") as string;
   const quantity = Number(formData.get("quantity"));
-  const customer = formData.get("customer") as string;
+  const customerName = formData.get("customer") as string;
 
   const part = await prisma.part.findUnique({ where: { id: partId } });
   if (!part || part.stock < quantity) throw new Error("Insufficient stock");
+
+  // Upsert customer by name
+  // If 'name' is unique in your schema, this will work. Otherwise, use 'id' or update your schema.
+  const customer = await prisma.customer.upsert({
+    where: { id:  customerName },
+    update: {},
+    create: { name: customerName },
+  });
 
   // Create invoice and deduct inventory in a transaction
   await prisma.$transaction([
     prisma.invoice.create({
       data: {
-        customer,
+        customer: { connect: { id: customer.id } },
         total: part.price * quantity,
         createdAt: new Date(),
         items: {
-          create: [{ partId, quantity, price: part.price }],
+          create: [{ customerId: customer.id, partId, quantity, price: part.price }],
         },
       },
     }),
@@ -97,12 +105,17 @@ export async function getInvoices() {
 
 // Create a custom invoice (admin)
 export async function createCustomInvoiceAction(formData: FormData) {
-  const customer = formData.get("customer") as string;
+  const customerName = formData.get("customer") as string;
   const total = Number(formData.get("total"));
-  // You can add more fields as needed
+  // Upsert customer by name
+  const customer = await prisma.customer.upsert({
+    where: { id: customerName },
+    update: {},
+    create: { name: customerName },
+  });
   await prisma.invoice.create({
     data: {
-      customer,
+      customer: { connect: { id: customer.id } },
       total,
       createdAt: new Date(),
       paid: false,

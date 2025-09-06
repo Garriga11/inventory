@@ -1,6 +1,8 @@
 import { addPartAction, createInvoiceAction, payInvoiceAction, getInvoices, createCustomInvoiceAction } from "./action";
 import { getMonthlyRevenue, getDailyRevenue } from "@/app/invl/revActions";
 import prisma from "@/lib/prisma";
+import ReportForm from "@/components/ReportForm";
+import ReportTable from "@/components/ReportTable";
 
 export default async function PartsPage() {
   const parts = await prisma.part.findMany();
@@ -73,7 +75,7 @@ export default async function PartsPage() {
             {invoices.map((inv, idx) => (
               <tr key={inv.id} className={idx % 2 === 0 ? "bg-white dark:bg-gray-900" : "bg-gray-50 dark:bg-gray-800"}>
                 <td className="px-4 py-2 border-b">{inv.id}</td>
-                <td className="px-4 py-2 border-b">{inv.customer}</td>
+                <td className="px-4 py-2 border-b">{inv.customerId}</td>
                 <td className="px-4 py-2 border-b">{new Date(inv.createdAt).toLocaleDateString()}</td>
                 <td className="px-4 py-2 border-b">{inv.payment?.paidAt ? new Date(inv.payment.paidAt).toLocaleDateString() : "-"}</td>
                 <td className="px-4 py-2 border-b">${inv.total.toFixed(2)}</td>
@@ -142,7 +144,13 @@ export default async function PartsPage() {
         <input name="customer" placeholder="Customer" required className="border px-2 py-1 rounded" />
         <input name="total" type="number" step="0.01" placeholder="Total" required className="border px-2 py-1 rounded w-24" />
         <button type="submit" className="bg-blue-500 text-white px-3 py-1 rounded">Create Custom Invoice</button>
+    
       </form>
+
+      {/* <ReportTable invoices={report} /> */}
+      <ReportForm />
+
+      <ReportTable invoices={[]} />
     </main>
   );
 }

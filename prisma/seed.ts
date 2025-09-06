@@ -4,52 +4,62 @@ const prisma = new PrismaClient()
 
 async function main() {
   // Create parts (inventory)
-  const Screen = await prisma.part.create({
+  const screen = await prisma.part.create({
     data: {
       name: 'Iphone 13 Pro Max Screen',
       price: 9.99,
       stock: 100,
     },
-  })
+  });
 
-  const Battery = await prisma.part.create({
+  const battery = await prisma.part.create({
     data: {
       name: 'Iphone 13 Pro Max Battery',
       price: 19.99,
       stock: 50,
     },
-  })
+  });
 
-  // Create invoice with items
+  // Create a customer
+  const customer = await prisma.customer.create({
+    data: {
+      name: 'Customer 1',
+    },
+  });
+
+  // Create an invoice for the customer
   const invoice = await prisma.invoice.create({
     data: {
-      customer: 'Customer 1',
-      total: (Battery.price * 2) + (Battery.price * 1),
+      customerId: customer.id,
+      total: battery.price * 3 + screen.price * 1,
       paid: true,
       items: {
         create: [
           {
-            partId: Battery.id,
+            customerId: customer.id,
+            partId: battery.id,
             quantity: 2,
-            price: Battery.price, 
+            price: battery.price,
           },
           {
-            partId: Battery.id,
+            customerId: customer.id,
+            partId: screen.id,
             quantity: 1,
-            price: Battery.price,
+            price: screen.price,
           },
         ],
       },
       payment: {
         create: {
-          amount: (Battery.price * 2) + (Battery.price * 1),
-          paidAt: new Date(), // ✅ Optional override
+          amount: battery.price * 2 + screen.price * 1,
+          paidAt: new Date(),
         },
       },
     },
-  })
+    include: { items: true, payment: true },
+  });
 
-  console.log('✅ Seeded invoice:', invoice.id)
+  console.log('✅ Seeded invoice:', invoice.id);
 }
 
 main()

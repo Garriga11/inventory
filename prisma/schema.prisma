@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Part {
-  id          String        @id @default(uuid())
+  id          String        @id @default(cuid())
   name        String
   stock       Int
   price       Float
@@ -17,49 +17,65 @@ model Part {
   InvoiceItem InvoiceItem[]
 }
 
+model Customer {
+  id       String    @id @default(cuid())
+  name     String
+  invoices Invoice[]
+  InvoiceItem InvoiceItem[]
+}
+
 model Invoice {
-  id        String        @id @default(cuid())
-  customer  String
-  total     Float
-  paid      Boolean       @default(false)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  items     InvoiceItem[]
-  payment   Payment?
-  revenue   Revenue[]
-  
+  id         String        @id @default(cuid())
+  customer   Customer?     @relation(fields: [customerId], references: [id])
+  total      Float
+  paid       Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  items      InvoiceItem[]
+  payment    Payment?
+  revenue    Revenue[]
+  notes      String?
+  customerId String?
 }
 
 model InvoiceItem {
-  id        String  @id @default(cuid())
-  invoiceId String
-  partId    String
-  quantity  Int
-  price     Float // ✅ Added to support historical pricing
-  part      Part    @relation(fields: [partId], references: [id])
-  invoice   Invoice @relation(fields: [invoiceId], references: [id])
-
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  invoiceId  String
+  partId     String
+  quantity   Int
+  price      Float // ✅ Added to support historical pricing
+  part       Part     @relation(fields: [partId], references: [id])
+  invoice    Invoice  @relation(fields: [invoiceId], references: [id])
 }
 
 model Payment {
-  id        String   @id @default(cuid())
-  invoiceId String   @unique
+  id        String    @id @default(cuid())
+  invoiceId String    @unique
   amount    Float
-  paidAt    DateTime @default(now())
-  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+  paidAt    DateTime  @default(now())
+  invoice   Invoice   @relation(fields: [invoiceId], references: [id])
   revenue   Revenue[]
 }
+
 model Revenue {
   id          String   @id @default(cuid())
   amount      Float
   source      String
   description String?
   invoiceId   String?
-  paymentId   String?   
+  paymentId   String?
   paymentDate DateTime
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  payment     Payment?  @relation(fields: [paymentId], references: [id])
-  invoice     Invoice?  @relation(fields: [invoiceId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  payment     Payment? @relation(fields: [paymentId], references: [id])
+  invoice     Invoice? @relation(fields: [invoiceId], references: [id])
 }
 
+model ExportLog {
+  id         String   @id @default(cuid())
+  exportedAt DateTime @default(now())
+  type       String
+  params     String?
+}
